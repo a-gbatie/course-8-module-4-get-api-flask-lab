@@ -1,161 +1,253 @@
 
-# Module Lab: Building RESTful GET APIs with Flask
+# Building RESTful GET APIs with Flask
 
-## Learning Goals
+## Overview
 
-- Implement RESTful API endpoints using Flask.
-- Handle HTTP GET methods to serve resource data.
-- Support query parameters and dynamic route segments.
-- Return consistent JSON responses using `jsonify()`.
-- Follow RESTful conventions in route structure and response formatting.
+The goal of this lab is to build a RESTful API using Flask that handles HTTP GET requests and returns product information in JSON format.
 
-## Introduction
+The application simulates a simple product catalog where users can retrieve all products, search for a specific product by ID, or filter products by category.
 
-In this lab, you will build a **Read-Only RESTful API** to serve a list of products. The API will allow users to:
+## Learning Objectives
 
-- Access a homepage route with a welcome message
-- Retrieve all products via `GET /products`
-- Fetch a specific product using `GET /products/<id>`
-- Filter products by category using a query string (`/products?category=books`)
+- Build a RESTful API using Python and Flask.
+- Define routes using the `@app.route()` decorator.
+- Handle HTTP GET requests.
+- Return JSON responses using `jsonify()`.
+- Use dynamic URL parameters to retrieve individual resources.
+- Access query string parameters using `request.args`.
+- Filter data based on user input.
+- Handle missing resources using HTTP 404 status codes.
 
-You’ll simulate a product catalog using an in-memory list of dictionaries, format all responses as JSON, and follow best practices for route design and error handling.
+## Technologies Used
 
-## Setup Instructions
+- Python 3
+- Flask
+- JSON
+- Git and GitHub
+- Visual Studio Code
+- Pytest
 
-### Fork and Clone the Repository
+### app.py
 
-1. Go to the provided GitHub repository link.
-2. Fork the repository to your GitHub account.
-3. Clone the forked repository to your local machine:
+Contains the Flask application and the routes responsible for handling incoming HTTP GET requests.
 
-```bash
-git clone <repo-url>
-cd course-8-module-4-get-api-flask
+### data.py
+
+Contains the mock product data stored as a list of Python dictionaries.
+
+Each product includes an ID, name, price, and category.
+
+## API Endpoints
+
+### 1. Homepage
+
+**Endpoint:** `GET /`
+
+Returns a welcome message confirming that the API is running.
+
+Example request:
+
+```http
+GET http://localhost:5000/
 ```
 
-### Install Dependencies
+Example response:
 
-Ensure Python is installed:
-
-```bash
-python --version
+```json
+{
+  "message": "Welcome to the Product API!"
+}
 ```
 
-Install Flask and dependencies using pipenv:
+### 2. Retrieve All Products
 
-```bash
-pipenv install
-pipenv shell
+**Endpoint:** `GET /products`
+
+Returns a JSON list containing all available products.
+
+Example request:
+
+```http
+GET http://localhost:5000/products
 ```
 
-Or with pip:
+Example response:
 
-```bash
-pip install flask
-```
-
-## Tasks
-
-### Task 1: Define the Problem
-
-You’re building a basic product catalog API. It should:
-
-- Display a welcome message at `/`
-- Serve all products with `GET /products`
-- Retrieve individual products via `GET /products/<id>`
-- Filter products by category using a query string (e.g. `/products?category=books`)
-
----
-
-### Task 2: Determine the Design
-
-The Flask API should:
-
-- Use `@app.route()` decorators with `methods=["GET"]`
-- Use `request.args.get()` to handle query parameters
-- Return all output using `jsonify()`
-- Return meaningful HTTP status codes (`200`, `404`)
-
----
-
-### Task 3: Develop the Code
-
-Create `app.py` and start with the following structure:
-
-```python
-from flask import Flask, jsonify, request
-
-app = Flask(__name__)
-
-# Mock data
-products = [
-    {"id": 1, "name": "Laptop", "price": 899.99, "category": "electronics"},
-    {"id": 2, "name": "Book", "price": 14.99, "category": "books"},
-    {"id": 3, "name": "Desk", "price": 199.99, "category": "furniture"},
+```json
+[
+  {
+    "id": 1,
+    "name": "Laptop",
+    "price": 899.99,
+    "category": "electronics"
+  },
+  {
+    "id": 2,
+    "name": "Book",
+    "price": 14.99,
+    "category": "books"
+  },
+  {
+    "id": 3,
+    "name": "Desk",
+    "price": 199.99,
+    "category": "furniture"
+  }
 ]
-
-# TODO: Implement homepage route that returns a welcome message
-# TODO: Implement GET /products route that returns all products or filters by category
-# TODO: Implement GET /products/<id> route that returns a product by ID or 404
-
-if __name__ == "__main__":
-    app.run(debug=True)
 ```
 
----
+### 3. Retrieve a Product by ID
 
-### Task 4: Test the API
+**Endpoint:** `GET /products/<int:id>`
 
-Start the Flask development server:
+Returns a specific product based on its ID.
+
+Example request:
+
+```http
+GET http://localhost:5000/products/2
+```
+
+Example response:
+
+```json
+{
+  "id": 2,
+  "name": "Book",
+  "price": 14.99,
+  "category": "books"
+}
+```
+
+If the requested product does not exist, the API returns a 404 status code.
+
+Example error response:
+
+```json
+{
+  "error": "Product not found"
+}
+```
+
+### 4. Filter Products by Category
+
+**Endpoint:** `GET /products?category=<category>`
+
+Allows users to filter products by category using a query string parameter.
+
+Example request:
+
+```http
+GET http://localhost:5000/products?category=books
+```
+
+Example response:
+
+```json
+[
+  {
+    "id": 2,
+    "name": "Book",
+    "price": 14.99,
+    "category": "books"
+  }
+]
+```
+
+Category filtering is case-insensitive, allowing requests such as `category=Books` and `category=books` to produce the same results.
+
+## How the Application Works
+
+### Flask Routes
+
+The application uses Flask's `@app.route()` decorator to connect URL paths to Python functions.
+
+Each route handles a specific GET request and returns the appropriate response.
+
+### JSON Responses
+
+The `jsonify()` function converts Python dictionaries and lists into JSON responses that clients can consume.
+
+### Dynamic URL Parameters
+
+The `/products/<int:id>` route captures an integer from the URL and passes it to the corresponding Python function.
+
+The function searches the product list and returns the matching product.
+
+### Query String Parameters
+
+The `request.args.get("category")` method retrieves the category parameter from the request URL.
+
+If a category is provided, the application filters the product list using a list comprehension.
+
+If no category is provided, the API returns all available products.
+
+### Error Handling
+
+When a requested product ID does not exist, the application returns a JSON error message with an HTTP 404 status code.
+
+This helps clients understand that the requested resource could not be found.
+
+## Installation and Setup
+
+### 1. Clone the Repository
 
 ```bash
-python app.py
+git clone git@github.com:a-gbatie/course-8-module-4-get-api-flask-lab.git
+cd course-8-module-4-get-api-flask-lab
 ```
 
-Test your endpoints using your browser, Postman, or curl:
+### 2. Install Flask
 
-- `GET http://localhost:5000/`
-- `GET http://localhost:5000/products`
-- `GET http://localhost:5000/products/2`
-- `GET http://localhost:5000/products?category=books`
+```bash
+python3 -m pip install flask
+```
 
----
+### 3. Start the Flask Server
 
-## Best Practices
+```bash
+python3 app.py
+```
 
-- Use plural nouns for collection routes (e.g., `/products`)
-- Normalize input (e.g., `.lower()`) when filtering by query string
-- Use `jsonify()` for all responses
-- Return:
-  - `200 OK` for successful GET requests
-  - `404 Not Found` if a product ID doesn’t exist
-- Include inline comments to explain your logic
+The development server runs at:
 
----
+```text
+http://127.0.0.1:5000
+```
 
-## Considerations
+### 4. Test the API
 
-**1. Input Validation**
-- Handle invalid query parameters or IDs with a clear error message.
+Open a browser and visit the following endpoints:
 
-**2. Case Sensitivity in Filtering**
-- Normalize both category input and stored data to avoid mismatches.
+```text
+http://localhost:5000/
+http://localhost:5000/products
+http://localhost:5000/products/1
+http://localhost:5000/products/999
+http://localhost:5000/products?category=books
+```
 
-**3. Consistent Response Structure**
-- Ensure all responses follow the same JSON format.
+Each endpoint returns a JSON response based on the request.
 
-**4. Modular Code**
-- Keep logic clean and organized. As your API grows, consider separating routes into blueprints and data into separate modules.
+## Testing
 
----
+The project uses Pytest to verify that the Flask routes behave as expected.
 
-## Conclusion
+Run the tests using:
 
-After completing this lab, you will:
+```bash
+python3 -m pytest -x
+```
 
-✅ Understand RESTful GET route structure  
-✅ Build routes that serve both collections and single resources  
-✅ Use query strings to filter results  
-✅ Return structured JSON and meaningful HTTP responses  
+The `-x` option stops execution after the first failed test, making debugging easier.
 
-This lays the foundation for full CRUD APIs in the next module.
+The tests check that the application:
+
+- Returns a welcome message.
+- Retrieves the complete product list.
+- Retrieves individual products by ID.
+- Returns a 404 response for nonexistent products.
+- Filters products based on category.
+
+## Screenshot of Completed Tests
+![alt text](image.png)
