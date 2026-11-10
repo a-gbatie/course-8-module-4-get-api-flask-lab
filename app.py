@@ -7,13 +7,13 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-  return jsonify({"message": "Welcome to the Product API!"})
+  return jsonify({"message": "Welcome to the Product API!"}) # creates a Python dictionary that gets converted to a JSON respone
 
 # TODO: Implement GET /products route that returns all products or filters by category
 
 @app.route("/products", methods=["GET"])
 def get_products():
-  category = request.args.get("category")
+  category = request.args.get("category") # grab query parameter
   
   if category:
     filtered_products = [
@@ -25,9 +25,14 @@ def get_products():
 
 # TODO: Implement GET /products/<id> route that returns a specific product by ID or 404
 
-@app.route("/products/<int:id>")
+@app.route("/products/<int:id>", method=["GET"])
 def get_product_by_id(id):
-    pass  # TODO: Return product by ID or 404
-
+  for product in products:
+    if product["id"] == id:
+      return jsonify(product)
+  
+  return jsonify({"error": "Product not found"}), 404
+  
+  
 if __name__ == "__main__":
-    app.run(debug=True)
+  app.run(debug=True)
