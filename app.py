@@ -25,7 +25,7 @@ def get_products():
 
 # TODO: Implement GET /products/<id> route that returns a specific product by ID or 404
 
-@app.route("/products/<int:id>", method=["GET"])
+@app.route("/products/<int:id>", methods=["GET"])
 def get_product_by_id(id):
   for product in products:
     if product["id"] == id:
