@@ -11,9 +11,17 @@ def home():
 
 # TODO: Implement GET /products route that returns all products or filters by category
 
-@app.route("/products")
+@app.route("/products", methods=["GET"])
 def get_products():
-    pass  # TODO: Return all products or filter by ?category=
+  category = request.args.get("category")
+  
+  if category:
+    filtered_products = [
+      product for product in products
+      if product["category"].lower() == category.lower()
+    ]
+    return jsonify(filtered_products)
+  return jsonify(products)
 
 # TODO: Implement GET /products/<id> route that returns a specific product by ID or 404
 
